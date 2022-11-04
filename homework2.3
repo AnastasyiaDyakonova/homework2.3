@@ -1,0 +1,188 @@
+/* 2. Для будущих отчетов аналитики попросили вас создать еще одну таблицу с информацией по отделам – в таблице должен быть идентификатор для каждого отдела, название отдела (например. Бухгалтерский или IT отдел), ФИО руководителя и количество сотрудников.*/
+CREATE TABLE departments (
+	id_department SERIAL PRIMARY KEY, 
+	name_department VARCHAR(50), 
+	name_supervisor VARCHAR(50), 
+	count_employees INT
+	);
+/*3. На кону конец года и необходимо выплачивать сотрудникам премию. Премия будет выплачиваться по совокупным оценкам, которые сотрудники получают в каждом квартале года. Создайте таблицу, в которой для каждого сотрудника будут его оценки за каждый квартал. Диапазон оценок от A – самая высокая, до E – самая низкая.*/
+CREATE TABLE prize (
+	name_employee VARCHAR(50) PRIMARY KEY, 
+	rating_quarter_1 CHAR(2),
+	rating_quarter_2 CHAR(2),
+	rating_quarter_3 CHAR(2),
+	rating_quarter_4 CHAR(2),
+	CHECK((rating_quarter_1='A' OR rating_quarter_1='B' OR rating_quarter_1='C' OR rating_quarter_1 = 'D' OR rating_quarter_1='E') AND (rating_quarter_2='A' OR rating_quarter_2='B' OR rating_quarter_2='C' OR rating_quarter_2 = 'D' OR rating_quarter_2='E') AND (rating_quarter_3='A' OR rating_quarter_3='B' OR rating_quarter_3='C' OR rating_quarter_3 = 'D' OR rating_quarter_3='E') AND (rating_quarter_4='A' OR rating_quarter_4='B' OR rating_quarter_4='C' OR rating_quarter_4 = 'D' OR rating_quarter_4='E'))
+	);
+
+/*1. Создать таблицу с основной информацией о сотрудниках: ФИО, дата рождения, дата начала работы, должность, уровень сотрудника (jun, middle, senior, lead), уровень зарплаты, идентификатор отдела, наличие/отсутствие прав(True/False). При этом в таблице обязательно должен быть уникальный номер для каждого сотрудника.*/	
+CREATE TABLE employees (
+	id_employee SERIAL PRIMARY KEY, 
+	name_employee VARCHAR(50), 
+	date_birthday DATE, 
+	date_employment DATE, 
+	job_title VARCHAR(30), 
+	level_skill VARCHAR(10), 
+	salary DECIMAL(10,2), 
+	id_department INT, 
+	access_right BOOL,
+	CHECK((level_skill='jun' OR level_skill='middle' OR level_skill='senior' OR level_skill='lead') AND (access_right='TRUE' OR access_right='FALSE')),
+	CONSTRAINT fk_employees_departments FOREIGN KEY (id_department) REFERENCES  departments(id_department),
+	CONSTRAINT fk_employees_prize FOREIGN KEY (name_employee) REFERENCES  prize(name_employee)
+	);
+
+/* 4. Несколько уточнений по предыдущим заданиям – в первой таблице должны быть записи как минимум о 5 сотрудниках, которые работают как минимум в 2-х разных отделах. Содержимое соответствующих атрибутов остается на совесть вашей фантазии, но, желательно соблюдать осмысленность и правильно выбирать типы данных (для зарплаты – числовой тип, для ФИО – строковый и т.д.)*/
+
+		
+INSERT INTO departments( name_department, name_supervisor, count_employees)
+VALUES ('IT отдел', 'Трошин Петр Николаевич', 3),
+		('Бухгатерия', 'Иванов Игорь Андреевич', 2);
+		
+
+INSERT INTO prize(name_employee, rating_quarter_1, rating_quarter_2, rating_quarter_3, rating_quarter_4)
+VALUES ('Трошин Петр Николаевич', 'A', 'A', 'B', 'A'),
+		('Иванов Игорь Андреевич', 'B', 'A', 'A', 'B'),
+		('Темникова Ирина Павловна', 'B', 'D', 'B','C'),
+		('Кобец Тимур Иванович', 'C', 'B', 'B', 'A'),
+		('Аверина Анастасия Александровна', 'C', 'D', 'A', 'B'); 
+		
+INSERT INTO employees (name_employee, date_birthday, date_employment, job_title, level_skill, salary, id_department, access_right)
+VALUES ('Иванов Игорь Андреевич', '1967-11-15','2012-03-18','Главный бухгатер','senior', 120000, 2, TRUE),
+		('Темникова Ирина Павловна', '1995-01-21','2018-09-12','Бухгатер','middle', 70000, 2, TRUE),
+		('Трошин Петр Николаевич', '1985-03-28','2018-08-13','Data Engineer','senior', 300000, 1, FALSE),
+		('Кобец Тимур Иванович', '1989-10-14','2020-07-25','Data Engineer','middle', 150000, 1, FALSE),
+		('Аверина Анастасия Александровна', '1993-11-07','2021-12-11','Data Engineer','jun', 50000, 1, TRUE);
+		
+/*5. Ваша команда расширяется и руководство запланировало открыть новый отдел – отдел Интеллектуального анализа данных. На начальном этапе в команду наняли одного руководителя отдела и двух сотрудников. Добавьте необходимую информацию в соответствующие таблицы.*/
+		
+		
+INSERT INTO departments( name_department, name_supervisor, count_employees)
+VALUES ('Интеллектуальный анализ данных', 'Орлова Юлия Вячеславовна', 3);
+
+
+INSERT INTO prize(name_employee, rating_quarter_1, rating_quarter_2, rating_quarter_3, rating_quarter_4)
+VALUES ('Орлова Юлия Вячеславовна', Null, Null, Null, Null),
+		('Демидова Екатерина Александровна', Null, Null, Null, Null), 
+		('Тарасов Евгений Александрович', Null, Null, Null, Null);
+		
+INSERT INTO employees (name_employee, date_birthday, date_employment, job_title, level_skill, salary, id_department, access_right)
+VALUES 
+		('Орлова Юлия Вячеславовна', '1985-06-24','2022-11-04','Data Analyst','senior', 400000, 3, FALSE),
+		('Демидова Екатерина Александровна', '1985-10-03','2022-11-04','Data Analyst','middle', 250000, 3, FALSE),
+		('Тарасов Евгений Александрович', '1993-08-05','2022-11-04','Data Analyst','jun', 80000, 3, TRUE);
+		
+/*6. Теперь пришла пора анализировать наши данные – напишите запросы для получения следующей информации:
+
+o   Уникальный номер сотрудника, его ФИО и стаж работы – для всех сотрудников компании*/
+		
+SELECT id_employee, 
+	name_employee, 
+	(CURRENT_DATE - date_employment)/30 AS "Стаж, месяцев" 
+FROM employees;
+
+/*Уникальный номер сотрудника, его ФИО и стаж работы – только первых 3-х сотрудников*/
+SELECT id_employee, 
+	name_employee, 
+	(CURRENT_DATE - date_employment)/30 AS "Стаж, месяцев" 
+FROM employees
+LIMIT 3;
+
+/*Уникальный номер сотрудников - водителей*/
+
+SELECT 
+	name_employee
+FROM employees
+WHERE job_title = 'Водитель';
+
+/*Выведите номера сотрудников, которые хотя бы за 1 квартал получили оценку D или E*/
+
+SELECT id_employee
+FROM employees
+WHERE name_employee IN 
+(SELECT name_employee
+FROM prize
+WHERE rating_quarter_1 IN ('D', 'E') OR rating_quarter_2 IN ('D', 'E') OR rating_quarter_3 IN ('D','E') OR rating_quarter_4 IN ('D', 'E'));
+
+/*Выведите самую высокую зарплату в компании*/
+
+SELECT MAX(salary)
+FROM employees;
+
+/* * Выведите название самого крупного отдела*/
+
+SELECT name_department
+FROM departments
+WHERE count_employees = (SELECT MAX(count_employees) FROM departments);
+
+/** Выведите номера сотрудников от самых опытных до вновь прибывших*/
+
+SELECT id_employee
+FROM (SELECT CURRENT_DATE - date_employment AS DT, id_employee FROM employees ORDER BY DT DESC) T;
+
+/* * Рассчитайте среднюю зарплату для каждого уровня сотрудников*/
+
+SELECT level_skill, AVG(salary)
+FROM employees
+GROUP BY level_skill;
+
+/** Добавьте столбец с информацией о коэффициенте годовой премии к основной таблице. Коэффициент рассчитывается по такой схеме: базовое значение коэффициента – 1, каждая оценка действует на коэффициент так:
+
+·         Е – минус 20%
+
+·         D – минус 10%
+
+·         С – без изменений
+
+·         B – плюс 10%
+
+·         A – плюс 20%
+
+Соответственно, сотрудник с оценками А, В, С, D – должен получить коэффициент 1.2.*/
+
+SELECT e.name_employee, 
+		date_birthday, 
+		date_employment, 
+		job_title, 
+		level_skill, 
+		salary, 
+		id_department, 
+		access_right, 
+		1 + Q1 + Q2 +Q3 +Q4 AS "Коэффициент"
+FROM employees AS e 
+INNER JOIN (
+	SELECT name_employee, 
+			CASE rating_quarter_1 
+			WHEN 'A' THEN 0.2
+			WHEN 'B' THEN 0.1
+			WHEN 'C' THEN 0
+			WHEN 'D' THEN -0.1
+			WHEN 'E' THEN -0.2
+			ELSE 0
+			END Q1,
+			CASE rating_quarter_2 
+			WHEN 'A' THEN 0.2
+			WHEN 'B' THEN 0.1
+			WHEN 'C' THEN 0
+			WHEN 'D' THEN -0.1
+			WHEN 'E' THEN -0.2
+			ELSE 0
+			END Q2,
+			CASE rating_quarter_3
+			WHEN 'A' THEN 0.2
+			WHEN 'B' THEN 0.1
+			WHEN 'C' THEN 0
+			WHEN 'D' THEN -0.1
+			WHEN 'E' THEN -0.2
+			ELSE 0 
+			END Q3,
+			CASE rating_quarter_4
+			WHEN 'A' THEN 0.2
+			WHEN 'B' THEN 0.1
+			WHEN 'C' THEN 0
+			WHEN 'D' THEN -0.1
+			WHEN 'E' THEN -0.2
+			ELSE 0
+			END Q4
+	FROM prize
+) T1	
+USING(name_employee)
